@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .file-upload {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .file-upload label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .add-new-patient {
+            background-color: #5cb85c;
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .add-new-patient:hover {
+            background-color: #449d44;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .patient-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .patient-table th, .patient-table td {
+            border: 1px solid #ddd;
+            padding: 10px 8px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .patient-table th {
+            background-color: #2c3e50;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .patient-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .patient-table tr:hover {
+            background-color: #e6f7ff;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            animation-name: animatetop;
+            animation-duration: 0.4s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes animatetop {
+            from {
+                top: -300px;
+                opacity: 0
+            }
+            to {
+                top: 0;
+                opacity: 1
+            }
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .modal-content input[type=text],
+        .modal-content input[type=date],
+        .modal-content select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .modal-content button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            flex: 1;
+            margin: 0 5px;
+        }
+
+        .modal-content button:hover {
+            opacity: 0.8;
+        }
+
+        .cancelbtn {
+            background-color: #f44336;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 8px 12px;
+            margin: 3px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .edit-btn {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .actions-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-title {
+            margin-top: 0;
+            color: #2c3e50;
+            padding-right: 30px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                width: 98%;
+                padding: 10px;
+                margin: 10px auto;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+
+            .search-input, .add-new-patient {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .patient-table {
+                font-size: 12px;
+            }
+
+            .patient-table th, .patient-table td {
+                padding: 8px 5px;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 15px;
+            }
+
+            .modal-content input[type=text],
+            .modal-content input[type=date],
+            .modal-content select,
+            .modal-content button {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .edit-btn, .delete-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+        @media screen and (max-width: 768px) {
+    /* Improve touch targets for buttons */
+    .edit-btn, .delete-btn {
+        padding: 10px 12px;
+        margin: 5px 0;
+        font-size: 14px;
+    }
+    
+    /* Make sure modal buttons are easy to tap */
+    .modal-content button {
+        min-height: 44px;
+    }
+    
+    /* Better scrolling experience */
+    .table-container {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+    
+    /* More visible scrollbar for touch devices */
+    .table-container::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    .table-container::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0.3);
+        border-radius: 4px;
+    }
+    
+    /* Ensure the form inputs are easy to tap */
+    .form-group input,
+    .form-group select {
+        height: 44px;
+    }
+    
+    /* Better spacing for the form groups on mobile */
+    .form-group {
+        margin-bottom: 20px;
+    }
+}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Patient Management System</h1>
+
+    <div class="file-upload">
+        <label for="fileInput">Upload Patient Data:</label>
+        <input type="file" id="fileInput" name="file" accept=".xlsx, .xls, .csv">
+    </div>
+
+    <input type="text" id="searchInput" class="search-input" placeholder="Search patients...">
+
+    <button class="add-new-patient" onclick="openModal()">Add New Patient</button>
+
+    <div class="table-container">
+        <table class="patient-table" id="patientTable">
+            <thead>
+            <tr>
+                <th>Pt file number</th>
+                <th>Hospital name</th>
+                <th>Date</th>
+                <th>DEATH</th>
+                <th>Gender</th>
+                <th>Ht CM</th>
+                <th>Wt</th>
+                <th>BMI</th>
+                <th>BSA</th>
+                <th>HTN</th>
+                <th>EF</th>
+                <th>Age</th>
+                <th>DM</th>
+                <th>ES</th>
+                <th>Pre HGB</th>
+                <th>Post HGB</th>
+                <th>Pre ALT</th>
+                <th>Post ALT</th>
+                <th>Pre BUN</th>
+                <th>Post BUN</th>
+                <th>Pre AST</th>
+                <th>Pre PTT</th>
+                <th>Post AST</th>
+                <th>Post PTT</th>
+                <th>Pre AMYLASE</th>
+                <th>Post AMYLASE</th>
+                <th>Pre creatinine</th>
+                <th>Post creatinine 24</th>
+                <th>Post creatinine 48</th>
+                <th>Pre + 0.3</th>
+                <th>Pre RBS</th>
+                <th>Post RBS</th>
+                <th>Pre CRP</th>
+                <th>Post CRP</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Patient data will be dynamically loaded here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add New Patient Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 class="modal-title">Add New Patient</h2>
+            
+            <div class="form-group">
+                <label for="ptFileNumber">Patient File Number:</label>
+                <input type="text" id="ptFileNumber">
+            </div>
+            
+            <div class="form-group">
+                <label for="hospitalName">Hospital Name:</label>
+                <input type="text" id="hospitalName">
+            </div>
+            
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date">
+            </div>
+            
+            <div class="form-group">
+                <label for="death">Death:</label>
+                <input type="text" id="death">
+            </div>
+            
+            <div class="form-group">
+                <label for="gender">Gender:</label>
+                <select id="gender">
+                    <option value="">Select</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="htCm">Height (CM):</label>
+                <input type="text" id="htCm">
+            </div>
+            
+            <div class="form-group">
+                <label for="wt">Weight:</label>
+                <input type="text" id="wt">
+            </div>
+            
+            <div class="form-group">
+                <label for="bmi">BMI:</label>
+                <input type="text" id="bmi">
+            </div>
+            
+            <div class="form-group">
+                <label for="bsa">BSA:</label>
+                <input type="text" id="bsa">
+            </div>
+            
+            <div class="form-group">
+                <label for="htn">HTN:</label>
+                <select id="htn">
+                    <option value="">Select</option>
+                    <option value="Y">Yes</option>
+                    <option value="N">No</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="ef">EF:</label>
+                <input type="text" id="ef">
+            </div>
+            
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input type="text" id="age">
+            </div>
+            
+            <div class="form-group">
+                <label for="dm">DM:</label>
+                <select id="dm">
+                    <option value="">Select</option>
+                    <option value="Y">Yes</option>
+                    <option value="N">No</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="es">ES:</label>
+                <input type="text" id="es">
+            </div>
+            
+            <div class="form-group">
+                <label for="preHgb">Pre HGB:</label>
+                <input type="text" id="preHgb">
+            </div>
+            
+            <div class="form-group">
+                <label for="postHgb">Post HGB:</label>
+                <input type="text" id="postHgb">
+            </div>
+            
+            <div class="form-group">
+                <label for="preAlt">Pre ALT:</label>
+                <input type="text" id="preAlt">
+            </div>
+            
+            <div class="form-group">
+                <label for="postAlt">Post ALT:</label>
+                <input type="text" id="postAlt">
+            </div>
+            
+            <div class="form-group">
+                <label for="preBun">Pre BUN:</label>
+                <input type="text" id="preBun">
+            </div>
+            
+            <div class="form-group">
+                <label for="postBun">Post BUN:</label>
+                <input type="text" id="postBun">
+            </div>
+            
+            <div class="form-group">
+                <label for="preAst">Pre AST:</label>
+                <input type="text" id="preAst">
+            </div>
+            
+            <div class="form-group">
+                <label for="prePtt">Pre PTT:</label>
+                <input type="text" id="prePtt">
+            </div>
+            
+            <div class="form-group">
+                <label for="postAst">Post AST:</label>
+                <input type="text" id="postAst">
+            </div>
+            
+            <div class="form-group">
+                <label for="postPtt">Post PTT:</label>
+                <input type="text" id="postPtt">
+            </div>
+            
+            <div class="form-group">
+                <label for="preAmylase">Pre AMYLASE:</label>
+                <input type="text" id="preAmylase">
+            </div>
+            
+            <div class="form-group">
+                <label for="postAmylase">Post AMYLASE:</label>
+                <input type="text" id="postAmylase">
+            </div>
+            
+            <div class="form-group">
+                <label for="preCreatinine">Pre Creatinine:</label>
+                <input type="text" id="preCreatinine">
+            </div>
+            
+            <div class="form-group">
+                <label for="postCreatinine24">Post Creatinine 24:</label>
+                <input type="text" id="postCreatinine24">
+            </div>
+            
+            <div class="form-group">
+                <label for="postCreatinine48">
+                    <label for="postCreatinine48">Post Creatinine 48:</label>
+                <input type="text" id="postCreatinine48">
+            </div>
+            
+            <div class="form-group">
+                <label for="prePlus03">Pre + 0.3:</label>
+                <input type="text" id="prePlus03">
+            </div>
+            
+            <div class="form-group">
+                <label for="preRbs">Pre RBS:</label>
+                <input type="text" id="preRbs">
+            </div>
+            
+            <div class="form-group">
+                <label for="postRbs">Post RBS:</label>
+                <input type="text" id="postRbs">
+            </div>
+            
+            <div class="form-group">
+                <label for="preCrp">Pre CRP:</label>
+                <input type="text" id="preCrp">
+            </div>
+            
+            <div class="form-group">
+                <label for="postCrp">Post CRP:</label>
+                <input type="text" id="postCrp">
+            </div>
+            
+            <div class="button-group">
+                <button type="button" onclick="closeModal()" class="cancelbtn">Cancel</button>
+                <button type="button" onclick="saveNewPatient()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Patient Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeEditModal()">&times;</span>
+            <h2 class="modal-title">Edit Patient</h2>
+            
+            <div class="form-group">
+                <label for="editPtFileNumber">Patient File Number:</label>
+                <input type="text" id="editPtFileNumber">
+            </div>
+            
+            <div class="form-group">
+                <label for="editHospitalName">Hospital Name:</label>
+                <input type="text" id="editHospitalName">
+            </div>
+            
+            <div class="form-group">
+                <label for="editDate">Date:</label>
+                <input type="date" id="editDate">
+            </div>
+            
+            <div class="form-group">
+                <label for="editDeath">Death:</label>
+                <input type="text" id="editDeath">
+            </div>
+            
+            <div class="form-group">
+                <label for="editGender">Gender:</label>
+                <select id="editGender">
+                    <option value="">Select</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="editHtCm">Height (CM):</label>
+                <input type="text" id="editHtCm">
+            </div>
+            
+            <div class="form-group">
+                <label for="editWt">Weight:</label>
+                <input type="text" id="editWt">
+            </div>
+            
+            <div class="form-group">
+                <label for="editBmi">BMI:</label>
+                <input type="text" id="editBmi">
+            </div>
+            
+            <div class="form-group">
+                <label for="editBsa">BSA:</label>
+                <input type="text" id="editBsa">
+            </div>
+            
+            <div class="form-group">
+                <label for="editHtn">HTN:</label>
+                <select id="editHtn">
+                    <option value="">Select</option>
+                    <option value="Y">Yes</option>
+                    <option value="N">No</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="editEf">EF:</label>
+                <input type="text" id="editEf">
+            </div>
+            
+            <div class="form-group">
+                <label for="editAge">Age:</label>
+                <input type="text" id="editAge">
+            </div>
+            
+            <div class="form-group">
+                <label for="editDm">DM:</label>
+                <select id="editDm">
+                    <option value="">Select</option>
+                    <option value="Y">Yes</option>
+                    <option value="N">No</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="editEs">ES:</label>
+                <input type="text" id="editEs">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPreHgb">Pre HGB:</label>
+                <input type="text" id="editPreHgb">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPostHgb">Post HGB:</label>
+                <input type="text" id="editPostHgb">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPreAlt">Pre ALT:</label>
+                <input type="text" id="editPreAlt">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPostAlt">Post ALT:</label>
+                <input type="text" id="editPostAlt">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPreBun">Pre BUN:</label>
+                <input type="text" id="editPreBun">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPostBun">Post BUN:</label>
+                <input type="text" id="editPostBun">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPreAst">Pre AST:</label>
+                <input type="text" id="editPreAst">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPrePtt">Pre PTT:</label>
+                <input type="text" id="editPrePtt">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPostAst">Post AST:</label>
+                <input type="text" id="editPostAst">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPostPtt">Post PTT:</label>
+                <input type="text" id="editPostPtt">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPreAmylase">Pre AMYLASE:</label>
+                <input type="text" id="editPreAmylase">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPostAmylase">Post AMYLASE:</label>
+                <input type="text" id="editPostAmylase">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPreCreatinine">Pre Creatinine:</label>
+                <input type="text" id="editPreCreatinine">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPostCreatinine24">Post Creatinine 24:</label>
+                <input type="text" id="editPostCreatinine24">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPostCreatinine48">Post Creatinine 48:</label>
+                <input type="text" id="editPostCreatinine48">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPrePlus03">Pre + 0.3:</label>
+                <input type="text" id="editPrePlus03">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPreRbs">Pre RBS:</label>
+                <input type="text" id="editPreRbs">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPostRbs">Post RBS:</label>
+                <input type="text" id="editPostRbs">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPreCrp">Pre CRP:</label>
+                <input type="text" id="editPreCrp">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPostCrp">Post CRP:</label>
+                <input type="text" id="editPostCrp">
+            </div>
+            
+            <div class="button-group">
+                <button type="button" onclick="closeEditModal()" class="cancelbtn">Cancel</button>
+                <button type="button" onclick="saveEditedPatient()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+    let excelData = []; // Store the Excel data
+    let currentEditIndex = -1; // Store the index of the row being edited
+    let originalFileName = ''; // Store the original file name
+
+    // Function to open the modal
+    function openModal() {
+        document.getElementById("myModal").style.display = "block";
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        document.getElementById("myModal").style.display = "none";
+    }
+
+    // Function to open the edit modal
+    function openEditModal(index) {
+        currentEditIndex = index;
+        // Populate the edit modal with the data from the selected row
+        const patient = excelData[index];
+        document.getElementById("editPtFileNumber").value = patient[0] || '';
+        document.getElementById("editHospitalName").value = patient[1] || '';
+        document.getElementById("editDate").value = formatDateForInput(patient[2]) || '';
+        document.getElementById("editDeath").value = patient[3] || '';
+        document.getElementById("editGender").value = patient[4] || '';
+        document.getElementById("editHtCm").value = patient[5] || '';
+        document.getElementById("editWt").value = patient[6] || '';
+        document.getElementById("editBmi").value = patient[7] || '';
+        document.getElementById("editBsa").value = patient[8] || '';
+        document.getElementById("editHtn").value = patient[9] || '';
+        document.getElementById("editEf").value = patient[10] || '';
+        document.getElementById("editAge").value = patient[11] || '';
+        document.getElementById("editDm").value = patient[12] || '';
+        document.getElementById("editEs").value = patient[13] || '';
+        document.getElementById("editPreHgb").value = patient[14] || '';
+        document.getElementById("editPostHgb").value = patient[15] || '';
+        document.getElementById("editPreAlt").value = patient[16] || '';
+        document.getElementById("editPostAlt").value = patient[17] || '';
+        document.getElementById("editPreBun").value = patient[18] || '';
+        document.getElementById("editPostBun").value = patient[19] || '';
+        document.getElementById("editPreAst").value = patient[20] || '';
+        document.getElementById("editPrePtt").value = patient[21] || '';
+        document.getElementById("editPostAst").value = patient[22] || '';
+        document.getElementById("editPostPtt").value = patient[23] || '';
+        document.getElementById("editPreAmylase").value = patient[24] || '';
+        document.getElementById("editPostAmylase").value = patient[25] || '';
+        document.getElementById("editPreCreatinine").value = patient[26] || '';
+        document.getElementById("editPostCreatinine24").value = patient[27] || '';
+        document.getElementById("editPostCreatinine48").value = patient[28] || '';
+        document.getElementById("editPrePlus03").value = patient[29] || '';
+        document.getElementById("editPreRbs").value = patient[30] || '';
+        document.getElementById("editPostRbs").value = patient[31] || '';
+        document.getElementById("editPreCrp").value = patient[32] || '';
+        document.getElementById("editPostCrp").value = patient[33] || '';
+        
+        document.getElementById("editModal").style.display = "block";
+    }
+
+    // Function to close the edit modal
+    function closeEditModal() {
+        document.getElementById("editModal").style.display = "none";
+    }
+
+    // Format date for input field (YYYY-MM-DD)
+    function formatDateForInput(dateStr) {
+        if (!dateStr) return '';
+        
+        // Try to parse the date
+        try {
+            // Check if the date is in dd/mm/yyyy format
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                const day = parts[0].padStart(2, '0');
+                const month = parts[1].padStart(2, '0');
+                const year = parts[2];
+                return `${year}-${month}-${day}`;
+            }
+            
+            // If it's already in YYYY-MM-DD format or can't be parsed
+            return dateStr;
+        } catch (e) {
+            return dateStr;
+        }
+    }
+
+    // Close the modal if the user clicks outside of it
+    window.onclick = function (event) {
+        if (event.target == document.getElementById("myModal")) {
+            closeModal();
+        } else if (event.target == document.getElementById("editModal")) {
+            closeEditModal();
+        }
+    }
+
+
+// Function to handle search
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const filteredData = excelData.filter(row => {
+        // Search through all columns of each row
+        return row.some(cell => 
+            cell && cell.toString().toLowerCase().includes(searchTerm)
+        );
+    });
+    
+    populateTable(filteredData);
+});
+
+document.getElementById('fileInput').addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    originalFileName = file.name; // Store the original file name
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+            
+            // Check if there's at least a header row
+            if (jsonData.length > 0) {
+                // Extract headers if they exist (first row)
+                const headers = jsonData[0];
+                
+                // Store the Excel data without headers
+                excelData = jsonData.length > 1 ? jsonData.slice(1) : [];
+                
+                populateTable(excelData);
+                
+                alert(`Successfully loaded ${excelData.length} patient records.`);
+            } else {
+                alert("The file appears to be empty.");
+            }
+        } catch (err) {
+            console.error("Error parsing Excel file:", err);
+            alert("Error loading file. Please make sure it's a valid Excel or CSV file.");
+        }
+    };
+
+    reader.onerror = function() {
+        alert("Error reading the file. Please try again.");
+    };
+
+    reader.readAsArrayBuffer(file);
+});
+
+function populateTable(data) {
+    const table = document.getElementById('patientTable').getElementsByTagName('tbody')[0];
+    table.innerHTML = ""; // Clear existing table data
+
+    if (data.length === 0) {
+        const emptyRow = table.insertRow();
+        const emptyCell = emptyRow.insertCell();
+        emptyCell.colSpan = 35; // Span across all columns
+        emptyCell.textContent = "No data available";
+        emptyCell.style.textAlign = "center";
+        emptyCell.style.padding = "20px";
+        return;
+    }
+
+    data.forEach((row, index) => {
+        let newRow = table.insertRow();
+        
+        // Ensure all cells are created for all columns
+        for (let i = 0; i < 34; i++) {
+            let cell = newRow.insertCell();
+            cell.textContent = row[i] || ""; // Use empty string for undefined values
+        }
+
+        // Add Edit and Delete buttons
+        let actionsCell = newRow.insertCell();
+        actionsCell.className = "actions-container";
+        actionsCell.innerHTML = `
+            <button class="edit-btn" onclick="openEditModal(${index})">Edit</button>
+            <button class="delete-btn" onclick="deletePatient(${index})">Delete</button>
+        `;
+    });
+}
+
+// Add some mobile-specific enhancements
+function enhanceMobileExperience() {
+    // Check if we're on a mobile device
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    
+    if (isMobile) {
+        // Add touch scrolling hints
+        const tableContainer = document.querySelector('.table-container');
+        tableContainer.setAttribute('title', 'Swipe to scroll horizontally');
+        
+        // Add pinch-to-zoom meta tag if not already present
+        if (!document.querySelector('meta[name="viewport"]')) {
+            const meta = document.createElement('meta');
+            meta.name = 'viewport';
+            meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=5.0';
+            document.getElementsByTagName('head')[0].appendChild(meta);
+        }
+        
+        // Add a hint about horizontal scrolling
+        const hint = document.createElement('div');
+        hint.style.textAlign = 'center';
+        hint.style.padding = '5px';
+        hint.style.color = '#666';
+        hint.style.fontSize = '0.8rem';
+        hint.innerHTML = '← Swipe horizontally to see more data →';
+        tableContainer.parentNode.insertBefore(hint, tableContainer);
+    }
+}
+
+// Call this when the page loads
+window.addEventListener('DOMContentLoaded', enhanceMobileExperience);
+// Also call this when window resizes
+window.addEventListener('resize', enhanceMobileExperience);
+// Add this code right after your excelData declaration
+let hasUnsavedChanges = false;
+
+// Add this HTML for a Save Changes button, place it after the "Add New Patient" button
+function addSaveChangesButton() {
+  const container = document.querySelector('.container');
+  const addButton = document.querySelector('.add-new-patient');
+  
+  // Check if the button already exists
+  if (!document.getElementById('saveChangesBtn')) {
+    const saveButton = document.createElement('button');
+    saveButton.id = 'saveChangesBtn';
+    saveButton.className = 'save-changes-btn';
+    saveButton.textContent = 'Save Changes to File';
+    saveButton.style.display = 'none';
+    saveButton.onclick = function() { downloadUpdatedFile(true); };
+    
+    container.insertBefore(saveButton, addButton.nextSibling);
+  }
+}
+
+// Add this CSS inside the existing <style> tag
+/*
+.save-changes-btn {
+    background-color: #3498db;
+    color: white;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.save-changes-btn:hover {
+    background-color: #2980b9;
+}
+*/
+
+// Modify saveEditedPatient function
+function saveEditedPatient() {
+    if (confirm("Are you sure you want to save the changes?")) {
+        // Get the edited values from the edit modal
+        const ptFileNumber = document.getElementById("editPtFileNumber").value;
+        const hospitalName = document.getElementById("editHospitalName").value;
+        const date = document.getElementById("editDate").value;
+        const death = document.getElementById("editDeath").value;
+        const gender = document.getElementById("editGender").value;
+        const htCm = document.getElementById("editHtCm").value;
+        const wt = document.getElementById("editWt").value;
+        const bmi = document.getElementById("editBmi").value;
+        const bsa = document.getElementById("editBsa").value;
+        const htn = document.getElementById("editHtn").value;
+        const ef = document.getElementById("editEf").value;
+        const age = document.getElementById("editAge").value;
+        const dm = document.getElementById("editDm").value;
+        const es = document.getElementById("editEs").value;
+        const preHgb = document.getElementById("editPreHgb").value;
+        const postHgb = document.getElementById("editPostHgb").value;
+        const preAlt = document.getElementById("editPreAlt").value;
+        const postAlt = document.getElementById("editPostAlt").value;
+        const preBun = document.getElementById("editPreBun").value;
+        const postBun = document.getElementById("editPostBun").value;
+        const preAst = document.getElementById("editPreAst").value;
+        const prePtt = document.getElementById("editPrePtt").value;
+        const postAst = document.getElementById("editPostAst").value;
+        const postPtt = document.getElementById("editPostPtt").value;
+        const preAmylase = document.getElementById("editPreAmylase").value;
+        const postAmylase = document.getElementById("editPostAmylase").value;
+        const preCreatinine = document.getElementById("editPreCreatinine").value;
+        const postCreatinine24 = document.getElementById("editPostCreatinine24").value;
+        const postCreatinine48 = document.getElementById("editPostCreatinine48").value;
+        const prePlus03 = document.getElementById("editPrePlus03").value;
+        const preRbs = document.getElementById("editPreRbs").value;
+        const postRbs = document.getElementById("editPostRbs").value;
+        const preCrp = document.getElementById("editPreCrp").value;
+        const postCrp = document.getElementById("editPostCrp").value;
+        
+        // Update the corresponding row in the excelData array
+        excelData[currentEditIndex] = [
+            ptFileNumber, hospitalName, date, death, gender, htCm, wt, bmi, bsa, htn, 
+            ef, age, dm, es, preHgb, postHgb, preAlt, postAlt, preBun, postBun, 
+            preAst, prePtt, postAst, postPtt, preAmylase, postAmylase, preCreatinine, 
+            postCreatinine24, postCreatinine48, prePlus03, preRbs, postRbs, preCrp, postCrp
+        ];
+
+        // Repopulate the table with the updated data
+        populateTable(excelData);
+
+        // Close the edit modal
+        closeEditModal();
+        
+        // Mark that we have unsaved changes
+        markUnsavedChanges();
+    }
+}
+
+// Modify deletePatient function
+function deletePatient(index) {
+    if (confirm("Are you sure you want to delete this patient?")) {
+        excelData.splice(index, 1); // Remove the patient from the array
+        populateTable(excelData); // Repopulate the table
+        
+        // Mark that we have unsaved changes
+        markUnsavedChanges();
+    }
+}
+
+// Modify saveNewPatient function
+function saveNewPatient() {
+    const ptFileNumber = document.getElementById("ptFileNumber").value;
+    const hospitalName = document.getElementById("hospitalName").value;
+    const date = document.getElementById("date").value;
+    const death = document.getElementById("death").value;
+    const gender = document.getElementById("gender").value;
+    const htCm = document.getElementById("htCm").value;
+    const wt = document.getElementById("wt").value;
+    const bmi = document.getElementById("bmi").value;
+    const bsa = document.getElementById("bsa").value;
+    const htn = document.getElementById("htn").value;
+    const ef = document.getElementById("ef").value;
+    const age = document.getElementById("age").value;
+    const dm = document.getElementById("dm").value;
+    const es = document.getElementById("es").value;
+    const preHgb = document.getElementById("preHgb").value;
+    const postHgb = document.getElementById("postHgb").value;
+    const preAlt = document.getElementById("preAlt").value;
+    const postAlt = document.getElementById("postAlt").value;
+    const preBun = document.getElementById("preBun").value;
+    const postBun = document.getElementById("postBun").value;
+    const preAst = document.getElementById("preAst").value;
+    const prePtt = document.getElementById("prePtt").value;
+    const postAst = document.getElementById("postAst").value;
+    const postPtt = document.getElementById("postPtt").value;
+    const preAmylase = document.getElementById("preAmylase").value;
+    const postAmylase = document.getElementById("postAmylase").value;
+    const preCreatinine = document.getElementById("preCreatinine").value;
+    const postCreatinine24 = document.getElementById("postCreatinine24").value;
+    const postCreatinine48 = document.getElementById("postCreatinine48").value;
+    const prePlus03 = document.getElementById("prePlus03").value;
+    const preRbs = document.getElementById("preRbs").value;
+    const postRbs = document.getElementById("postRbs").value;
+    const preCrp = document.getElementById("preCrp").value;
+    const postCrp = document.getElementById("postCrp").value;
+
+    // Add new patient data
+    excelData.push([
+        ptFileNumber, hospitalName, date, death, gender, htCm, wt, bmi, bsa, htn, 
+        ef, age, dm, es, preHgb, postHgb, preAlt, postAlt, preBun, postBun, 
+        preAst, prePtt, postAst, postPtt, preAmylase, postAmylase, preCreatinine, 
+        postCreatinine24, postCreatinine48, prePlus03, preRbs, postRbs, preCrp, postCrp
+    ]);
+
+    // Update table
+    populateTable(excelData);
+    closeModal();
+    
+    // Mark that we have unsaved changes
+    markUnsavedChanges();
+}
+
+// Add this function to mark unsaved changes
+function markUnsavedChanges() {
+    hasUnsavedChanges = true;
+    
+    // Show the save changes button
+    const saveButton = document.getElementById('saveChangesBtn');
+    if (saveButton) {
+        saveButton.style.display = 'block';
+    }
+    
+    // Optionally add a window before unload warning
+    window.onbeforeunload = function() {
+        if (hasUnsavedChanges) {
+            return "You have unsaved changes. Are you sure you want to leave?";
+        }
+    };
+}
+
+// Modify downloadUpdatedFile function to accept a parameter
+function downloadUpdatedFile(forceSave = false) {
+    // If there are no unsaved changes and we're not forcing a save, return
+    if (!hasUnsavedChanges && !forceSave) return;
+    
+    // Create a worksheet from the excelData
+    const headers = [
+        "Pt file number", "Hospital name", "Date", "DEATH", "Gender", "Ht CM", "Wt", "BMI", "BSA", "HTN",
+        "EF", "Age", "DM", "ES", "Pre HGB", "Post HGB", "Pre ALT", "Post ALT", "Pre BUN", "Post BUN",
+        "Pre AST", "Pre PTT", "Post AST", "Post PTT", "Pre AMYLASE", "Post AMYLASE", "Pre creatinine",
+        "Post creatinine 24", "Post creatinine 48", "Pre + 0.3", "Pre RBS", "Post RBS", "Pre CRP", "Post CRP"
+    ];
+
+    // Add headers as the first row of the data for export
+    const dataWithHeaders = [headers, ...excelData];
+    
+    const ws = XLSX.utils.aoa_to_sheet(dataWithHeaders);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Patients");
+    
+    // Use the original file name if available, otherwise use a default name
+    const fileName = originalFileName || "patient_data.xlsx";
+    
+    // Write the workbook and trigger a download
+    XLSX.writeFile(wb, fileName);
+    
+    // Reset unsaved changes flag and hide save button
+    hasUnsavedChanges = false;
+    const saveButton = document.getElementById('saveChangesBtn');
+    if (saveButton) {
+        saveButton.style.display = 'none';
+    }
+    
+    // Remove the window before unload warning
+    window.onbeforeunload = null;
+}
+
+// Call this when loading the document
+document.addEventListener('DOMContentLoaded', function() {
+    addSaveChangesButton();
+    
+    // Additional code: Let's add a CSS rule for the save button
+    const style = document.createElement('style');
+    style.textContent = `
+        .save-changes-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .save-changes-btn:hover {
+            background-color: #2980b9;
+        }
+    `;
+    document.head.appendChild(style);
+});
+
+// Modify file input handler to hide the save button when a new file is loaded
+document.getElementById('fileInput').addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    originalFileName = file.name; // Store the original file name
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+            
+            // Check if there's at least a header row
+            if (jsonData.length > 0) {
+                // Extract headers if they exist (first row)
+                const headers = jsonData[0];
+                
+                // Store the Excel data without headers
+                excelData = jsonData.length > 1 ? jsonData.slice(1) : [];
+                
+                populateTable(excelData);
+                
+                // Reset unsaved changes state
+                hasUnsavedChanges = false;
+                const saveButton = document.getElementById('saveChangesBtn');
+                if (saveButton) {
+                    saveButton.style.display = 'none';
+                }
+                
+                // Remove the window before unload warning
+                window.onbeforeunload = null;
+                
+                alert(`Successfully loaded ${excelData.length} patient records.`);
+            } else {
+                alert("The file appears to be empty.");
+            }
+        } catch (err) {
+            console.error("Error parsing Excel file:", err);
+            alert("Error loading file. Please make sure it's a valid Excel or CSV file.");
+        }
+    };
+
+    reader.onerror = function() {
+        alert("Error reading the file. Please try again.");
+    };
+
+    reader.readAsArrayBuffer(file);
+});
+</script>
+
+</body>
+</html>
